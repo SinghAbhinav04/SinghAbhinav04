@@ -46,6 +46,7 @@ Exploring various **Python** libraries like **Pandas**, **Matplotlib**, and **Se
 ## 🔗 Socials
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/singhabhinav04/)
+[![Discord](https://img.shields.io/badge/Discord-%237289DA.svg?logo=discord&logoColor=white)](https://discord.gg/ygYnFbre)
 [![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:heysinghabhinav@gmail.com)
 
 
