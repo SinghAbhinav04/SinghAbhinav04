@@ -10,8 +10,6 @@ Let's connect and collaborate on exciting tech and gaming projects!
 ### 🌟 Expense Tracker App
 A full-stack personal finance management app with a **Java Spring Boot** backend and **React** frontend. It helps users track their expenses with features like customizable date ranges and dynamic charts for insights with a stunning dashboard that uses **JWT** for authentication and password management with hashing.
 
-### 🎮 2D Open-World Game (In Progress)
-Building a **C++** 2D open-world game inspired by Pokémon FireRed, applying OOP principles and game development fundamentals.
 
 ### 📊 Data Visualization Projects (In Progress)
 Exploring various **Python** libraries like **Pandas**, **Matplotlib**, and **Seaborn** to create beautiful data visualizations, aiming to transition into data analysis and science.
