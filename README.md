@@ -5,13 +5,7 @@
 In addition to my AI/ML interests, I’m also working on enhancing my expertise in data analysis, visualization, and backend development, striving to merge the worlds of artificial intelligence and software engineering.
 
 Let's connect and collaborate on exciting tech and gaming projects!
-## 💼 Projects
 
-
-### 📊 Data Visualization Projects (In Progress)
-Exploring various **Python** libraries like **Pandas**, **Matplotlib**, and **Seaborn** to create beautiful data visualizations, aiming to transition into data analysis and science.
-
----
 
 ## 🔧 Technologies & Tools
 
