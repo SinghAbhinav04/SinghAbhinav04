@@ -1,6 +1,6 @@
 # Welcome to my GitHub profile!
 
-👋 Hi there! I'm Abhinav, a 20-year-old student currently in my 3rd semester at Chitkara University. I'm an aspiring AI/ML engineer with a strong passion for web development and gaming projects. I enjoy building creative, user-centric applications, and I’m continuously learning and exploring new technologies to sharpen my skills.
+👋 Hi there! I'm Abhinav, a 20-year-old student currently in my 4th semester at Chitkara University. I'm an aspiring AI/ML engineer with a strong passion for web development and gaming projects. I enjoy building creative, user-centric applications, and I’m continuously learning and exploring new technologies to sharpen my skills.
 
 In addition to my AI/ML interests, I’m also working on enhancing my expertise in data analysis, visualization, and backend development, striving to merge the worlds of artificial intelligence and software engineering.
 
