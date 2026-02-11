@@ -1,6 +1,6 @@
 # 👋 Hey there, I'm Abhinav!
 
-🎓 5th Semester CSE Student @ Chitkara University  
+🎓 6th Semester CSE Student @ Chitkara University  
 🧠 AI/ML Enthusiast | 💻 Full Stack Developer | 📱 Android Dev   
 
 I'm passionate about crafting intelligent, user-focused applications by combining the power of **AI/ML** with **robust backend systems** and **intuitive UIs**. I love learning, building, and collaborating on cool tech and gaming projects.
