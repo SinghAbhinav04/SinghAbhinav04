@@ -86,6 +86,7 @@ Let's build something awesome together!
 </td>
 </tr>
 </table>
+
 ## GitHub Stats
 
 <div align="center">
