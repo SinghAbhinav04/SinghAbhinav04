@@ -6,7 +6,7 @@
 
 <div align="center">
   
-**6th Semester CSE Student @ Chitkara University**  
+**7th Semester CSE Student @ Chitkara University**  
 **AI/ML Enthusiast | Full Stack Developer**
 
 <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=22&pause=1000&color=F75C7E&center=true&vCenter=true&random=false&width=600&lines=Crafting+Intelligent+Applications;AI%2FML+%2B+Full+Stack+Development;Building+The+Future+with+Code;LLMs+%7C+GenAI+%7C+DevOps" alt="Typing SVG" />
