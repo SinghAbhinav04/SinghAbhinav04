@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mixture of Recursions — live demo</title>
+    <meta
+      name="description"
+      content="Every token walks a different depth through one shared block. Animated architecture diagram of the MoR language model."
+    />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>🧩</text></svg>" />
+    <link rel="stylesheet" href="mac.css" />
+    <style>
+      .diagram-body {
+        padding: 6px 10px 14px;
+        background: #141416;
+      }
+
+      svg.arch {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      .lbl {
+        font: 600 12px var(--ui);
+        fill: var(--text);
+      }
+
+      .sub {
+        font: 400 10.5px var(--ui);
+        fill: var(--text-3);
+      }
+
+      .tiny {
+        font: 600 9.5px var(--ui);
+        fill: var(--text-4);
+        letter-spacing: 0.6px;
+      }
+
+      .mono {
+        font: 400 11px var(--mono);
+        fill: var(--text-2);
+      }
+
+      .tok text {
+        font: 600 11px var(--mono);
+        fill: #14141a;
+      }
+
+      .readout {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-top: 16px;
+      }
+
+      @media (max-width: 720px) {
+        .readout {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      .stat {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        border-radius: 10px;
+        padding: 13px 15px;
+      }
+
+      .stat b {
+        display: block;
+        font-size: 24px;
+        letter-spacing: -0.6px;
+        font-weight: 700;
+      }
+
+      .stat span {
+        display: block;
+        font-size: 11px;
+        color: var(--text-4);
+        margin-top: 3px;
+      }
+
+      .caps {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
+        gap: 14px;
+        margin-top: 26px;
+      }
+
+      .cap {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        border-radius: 11px;
+        padding: 15px 16px;
+      }
+
+      .cap h3 {
+        margin: 0 0 6px;
+        font-size: 13px;
+      }
+
+      .cap p {
+        margin: 0;
+        color: var(--text-3);
+        font-size: 12px;
+        line-height: 1.62;
+      }
+
+      .cap code {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--orange);
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="menubar">
+      <span class="apple">&#63743;</span>
+      <a class="name" href="https://github.com/SinghAbhinav04">Abhinav Singh</a>
+      <a href="index.html">Demos</a>
+      <a href="https://github.com/SinghAbhinav04/Mixture_Of_Recursions">Repository</a>
+      <a href="https://arxiv.org/abs/2507.10524">Paper</a>
+      <span class="spacer"></span>
+      <span class="clock" id="clock"></span>
+    </nav>
+
+    <main class="wrap">
+      <header class="page-head">
+        <div class="icon" style="background: linear-gradient(#ffc45e, #e07d0a)">🧩</div>
+        <div>
+          <h1>Mixture of Recursions</h1>
+          <p>
+            One block, reused. A router decides how many times each token passes through it, so easy tokens leave early
+            and hard ones keep going — the same quality for a fraction of the compute.
+          </p>
+        </div>
+        <div class="links">
+          <a class="btn" href="index.html">← All demos</a>
+          <a class="btn primary" href="https://github.com/SinghAbhinav04/Mixture_Of_Recursions">View source</a>
+        </div>
+      </header>
+
+      <section class="win">
+        <div class="titlebar">
+          <div class="lights"><i></i><i></i><i></i></div>
+          <div class="title">MoR — forward pass<small>watch a sentence walk the network</small></div>
+        </div>
+        <div class="body diagram-body">
+          <svg class="arch" viewBox="0 0 940 400" role="img" aria-label="Animated MoR architecture diagram">
+            <defs>
+              <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M0 0 L10 5 L0 10 z" fill="#6a6a72" />
+              </marker>
+              <linearGradient id="blockFill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#2a2a30" />
+                <stop offset="1" stop-color="#1e1e23" />
+              </linearGradient>
+            </defs>
+
+            <!-- input queue -->
+            <text class="tiny" x="24" y="72">INPUT TOKENS</text>
+            <rect x="20" y="84" width="180" height="252" rx="10" fill="rgba(255,255,255,.03)" stroke="#2e2e34" />
+            <g id="queue"></g>
+
+            <!-- router -->
+            <text class="tiny" x="232" y="72">ROUTER</text>
+            <rect x="228" y="84" width="104" height="252" rx="10" fill="rgba(10,132,255,.09)" stroke="rgba(10,132,255,.45)" />
+            <text class="lbl" x="280" y="196" text-anchor="middle">depth</text>
+            <text class="sub" x="280" y="214" text-anchor="middle">per token</text>
+            <text class="mono" x="280" y="248" text-anchor="middle" id="routerOut" fill="#4da3ff">—</text>
+
+            <!-- the one shared block -->
+            <text class="tiny" x="392" y="72">SHARED RECURSION BLOCK</text>
+            <rect x="388" y="84" width="292" height="252" rx="12" fill="url(#blockFill)" stroke="rgba(255,159,10,.5)" />
+            <g>
+              <rect x="410" y="112" width="248" height="40" rx="8" fill="rgba(255,255,255,.05)" stroke="#3a3a42" />
+              <text class="lbl" x="534" y="132" text-anchor="middle">RMSNorm</text>
+              <text class="sub" x="534" y="146" text-anchor="middle">pre-norm</text>
+
+              <rect x="410" y="164" width="248" height="52" rx="8" fill="rgba(255,255,255,.05)" stroke="#3a3a42" />
+              <text class="lbl" x="534" y="186" text-anchor="middle">Grouped-query attention</text>
+              <text class="sub" x="534" y="202" text-anchor="middle">RoPE · FlashAttention</text>
+
+              <rect x="410" y="228" width="248" height="46" rx="8" fill="rgba(255,255,255,.05)" stroke="#3a3a42" />
+              <text class="lbl" x="534" y="248" text-anchor="middle">SwiGLU feed-forward</text>
+              <text class="sub" x="534" y="263" text-anchor="middle">gated MLP</text>
+
+              <text class="tiny" x="534" y="304" text-anchor="middle" fill="#ff9f0a" id="passLabel">
+                PASS 0 OF 0
+              </text>
+              <text class="sub" x="534" y="322" text-anchor="middle">weights shared across every pass</text>
+            </g>
+
+            <!-- KV cache -->
+            <text class="tiny" x="706" y="72">KV CACHE</text>
+            <rect x="702" y="84" width="86" height="252" rx="10" fill="rgba(191,90,242,.08)" stroke="rgba(191,90,242,.42)" />
+            <text class="sub" x="745" y="200" text-anchor="middle" fill="#d69bf7">recursive</text>
+            <text class="sub" x="745" y="216" text-anchor="middle" fill="#d69bf7">reuse</text>
+            <g id="kv"></g>
+
+            <!-- output -->
+            <text class="tiny" x="820" y="72">OUTPUT</text>
+            <rect x="812" y="84" width="108" height="252" rx="10" fill="rgba(50,215,75,.07)" stroke="rgba(50,215,75,.4)" />
+            <g id="out"></g>
+
+            <!-- wiring -->
+            <path d="M200 210 H222" stroke="#6a6a72" stroke-width="1.6" marker-end="url(#ah)" fill="none" />
+            <path id="pThrough" d="M332 210 H676" stroke="#4a4a52" stroke-width="1.6" fill="none" stroke-dasharray="4 4" />
+            <path
+              id="pReturn"
+              d="M676 210 C700 210 700 356 640 356 H430 C372 356 372 210 396 210"
+              stroke="rgba(255,159,10,.55)"
+              stroke-width="1.6"
+              fill="none"
+              stroke-dasharray="5 5"
+            />
+            <text class="tiny" x="534" y="374" text-anchor="middle" fill="#ff9f0a">RECURSE — SAME WEIGHTS, AGAIN</text>
+            <path id="pOut" d="M676 210 H806" stroke="#4a4a52" stroke-width="1.6" fill="none" stroke-dasharray="4 4" />
+
+            <!-- the travelling token -->
+            <g id="flyer" style="opacity: 0">
+              <rect x="-26" y="-11" width="52" height="22" rx="6" fill="#ffb648" />
+              <text id="flyerText" x="0" y="4" text-anchor="middle" font="600 11px var(--mono)" fill="#14141a"></text>
+            </g>
+          </svg>
+        </div>
+      </section>
+
+      <div class="readout">
+        <div class="stat"><b id="sLayers" style="color: var(--orange)">0</b><span>block passes used</span></div>
+        <div class="stat"><b id="sStandard" style="color: var(--text-3)">0</b><span>a fixed 12-layer stack would use</span></div>
+        <div class="stat"><b id="sFlops" style="color: var(--green)">0%</b><span>fewer FLOPs on this sentence</span></div>
+        <div class="stat"><b style="color: var(--purple)">~3×</b><span>fewer unique parameters</span></div>
+      </div>
+
+      <div class="controls">
+        <button class="btn" id="replay">↻ Replay</button>
+        <span class="note">Runs automatically · depths shown are the routing decision per token</span>
+      </div>
+
+      <section class="caps">
+        <div class="cap">
+          <h3>Why it is cheaper</h3>
+          <p>
+            A standard decoder runs every token through every layer. MoR routes per token, so <code>"the"</code> can
+            leave after one pass while a rare word keeps recursing.
+          </p>
+        </div>
+        <div class="cap">
+          <h3>One block, many depths</h3>
+          <p>
+            Depth comes from reuse, not from more parameters. Cross-recursion weight sharing is what buys roughly three
+            times fewer unique parameters.
+          </p>
+        </div>
+        <div class="cap">
+          <h3>Recursive KV caching</h3>
+          <p>
+            Keys and values from earlier passes are kept and reused, so extra depth does not mean recomputing attention
+            from scratch each time.
+          </p>
+        </div>
+        <div class="cap">
+          <h3>Measured result</h3>
+          <p>
+            Up to 2× faster inference and 40–60% fewer FLOPs at comparable modelling quality — a from-scratch PyTorch
+            implementation of arXiv:2507.10524.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      Diagram animates the routing behaviour described in the repository.
+      <a href="https://github.com/SinghAbhinav04/Mixture_Of_Recursions">Read the source</a> ·
+      <a href="https://arxiv.org/abs/2507.10524">arXiv:2507.10524</a>.
+    </footer>
+
+    <script type="module">
+      import { startClock } from "./demo.js";
+
+      startClock(document.getElementById("clock"));
+
+      const SVG = "http://www.w3.org/2000/svg";
+      // Easy, frequent tokens get shallow routing; rare ones recurse further.
+      const TOKENS = [
+        { text: "The", depth: 1 },
+        { text: "cat", depth: 2 },
+        { text: "unequi…", depth: 3 },
+        { text: "sat", depth: 1 },
+      ];
+      const STANDARD_DEPTH = 12; // layers a fixed stack would run per token
+
+      const queue = document.getElementById("queue");
+      const outBox = document.getElementById("out");
+      const kvBox = document.getElementById("kv");
+      const flyer = document.getElementById("flyer");
+      const flyerText = document.getElementById("flyerText");
+      const routerOut = document.getElementById("routerOut");
+      const passLabel = document.getElementById("passLabel");
+
+      const paths = {
+        through: document.getElementById("pThrough"),
+        ret: document.getElementById("pReturn"),
+        out: document.getElementById("pOut"),
+      };
+
+      const sLayers = document.getElementById("sLayers");
+      const sStandard = document.getElementById("sStandard");
+      const sFlops = document.getElementById("sFlops");
+
+      let cancelled = 0; // bumped on replay so an in-flight run stops itself
+
+      function chip(parent, x, y, text, fill, ink = "#14141a") {
+        const g = document.createElementNS(SVG, "g");
+        g.setAttribute("class", "tok");
+        g.setAttribute("transform", `translate(${x},${y})`);
+        g.innerHTML =
+          `<rect x="-38" y="-12" width="76" height="24" rx="7" fill="${fill}"/>` +
+          `<text x="0" y="4.5" text-anchor="middle" fill="${ink}">${text}</text>`;
+        parent.appendChild(g);
+        return g;
+      }
+
+      const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+
+      /** Slide the flyer along a path, resolving when it reaches the end. */
+      function travel(path, ms, run) {
+        const len = path.getTotalLength();
+        const start = performance.now();
+        const token = cancelled;
+        return new Promise((resolve) => {
+          const step = (now) => {
+            if (token !== cancelled) return resolve();
+            const t = Math.min(1, (now - start) / ms);
+            const p = path.getPointAtLength(len * t);
+            flyer.setAttribute("transform", `translate(${p.x},${p.y})`);
+            if (run) run(t);
+            if (t < 1) requestAnimationFrame(step);
+            else resolve();
+          };
+          requestAnimationFrame(step);
+        });
+      }
+
+      function reset() {
+        cancelled += 1;
+        queue.innerHTML = "";
+        outBox.innerHTML = "";
+        kvBox.innerHTML = "";
+        flyer.style.opacity = 0;
+        routerOut.textContent = "—";
+        passLabel.textContent = "PASS 0 OF 0";
+        sLayers.textContent = "0";
+        sStandard.textContent = "0";
+        sFlops.textContent = "0%";
+        TOKENS.forEach((tok, i) => {
+          tok.node = chip(queue, 110, 120 + i * 56, tok.text, "#3f3f47", "#e8e8ee");
+        });
+      }
+
+      async function run() {
+        reset();
+        const token = cancelled;
+        let used = 0;
+
+        await wait(600);
+
+        for (const [i, tok] of TOKENS.entries()) {
+          if (token !== cancelled) return;
+
+          tok.node.style.opacity = 0.25;
+          routerOut.textContent = `depth = ${tok.depth}`;
+          flyerText.textContent = tok.text;
+          flyer.style.opacity = 1;
+
+          for (let pass = 1; pass <= tok.depth; pass++) {
+            passLabel.textContent = `PASS ${pass} OF ${tok.depth}`;
+            await travel(paths.through, 420);
+            if (token !== cancelled) return;
+
+            used += 1;
+            sLayers.textContent = String(used);
+            sStandard.textContent = String((i + 1) * STANDARD_DEPTH);
+            sFlops.textContent = `${Math.round((1 - used / ((i + 1) * STANDARD_DEPTH)) * 100)}%`;
+
+            // a KV entry lands in the cache on every pass
+            const dot = document.createElementNS(SVG, "circle");
+            dot.setAttribute("cx", 722 + ((used - 1) % 4) * 15);
+            dot.setAttribute("cy", 250 + Math.floor((used - 1) / 4) * 15);
+            dot.setAttribute("r", 4.5);
+            dot.setAttribute("fill", "#bf5af2");
+            dot.setAttribute("opacity", "0.85");
+            kvBox.appendChild(dot);
+
+            if (pass < tok.depth) await travel(paths.ret, 520);
+            if (token !== cancelled) return;
+          }
+
+          await travel(paths.out, 460);
+          if (token !== cancelled) return;
+
+          flyer.style.opacity = 0;
+          chip(outBox, 866, 120 + i * 56, tok.text, "#2f7a41", "#dffbe6");
+          passLabel.textContent = "PASS 0 OF 0";
+          await wait(220);
+        }
+
+        routerOut.textContent = "done";
+      }
+
+      // One driver owns the animation: it loops forever, and Replay simply
+      // cancels whatever is in flight so the next iteration starts clean.
+      const replay = document.getElementById("replay");
+      replay.addEventListener("click", () => {
+        cancelled += 1;
+      });
+
+      (async function loop() {
+        for (;;) {
+          replay.disabled = true;
+          replay.textContent = "Playing…";
+          await run();
+          replay.disabled = false;
+          replay.textContent = "↻ Replay";
+          await wait(2600);
+        }
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Omni Memory — live demo</title>
+    <meta
+      name="description"
+      content="A memory captured in Claude Code, recalled in Antigravity. Interactive walkthrough of Omni Memory."
+    />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>🧠</text></svg>" />
+    <link rel="stylesheet" href="mac.css" />
+    <style>
+      .stage {
+        align-items: stretch;
+      }
+
+      .stage .win {
+        height: 452px;
+      }
+
+      /* --- capture toast, the moment a memory is written ---------------- */
+      .capture {
+        white-space: normal;
+        margin: 12px 0 2px;
+        border: 1px solid rgba(191, 90, 242, 0.5);
+        background: rgba(191, 90, 242, 0.11);
+        border-radius: 9px;
+        padding: 10px 12px;
+        font-family: var(--ui);
+        font-size: 12px;
+      }
+
+      .capture .head {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        color: var(--purple);
+        font-weight: 600;
+        margin-bottom: 5px;
+      }
+
+      .capture .dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--purple);
+      }
+
+      .capture .what {
+        color: var(--text);
+        line-height: 1.5;
+      }
+
+      .capture .meta {
+        margin-top: 7px;
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        color: var(--text-3);
+        font-size: 10.5px;
+      }
+
+      .capture .meta span {
+        background: rgba(255, 255, 255, 0.07);
+        border-radius: 5px;
+        padding: 2px 7px;
+      }
+
+      /* --- Antigravity chat --------------------------------------------- */
+      .chat {
+        height: 100%;
+        overflow: hidden;
+        padding: 16px 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 13px;
+      }
+
+      .msg {
+        display: flex;
+        gap: 10px;
+        font-size: 12.5px;
+        line-height: 1.6;
+      }
+
+      .msg .av {
+        width: 24px;
+        height: 24px;
+        border-radius: 7px;
+        flex: none;
+        display: grid;
+        place-items: center;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .msg.user .av {
+        background: #3a3a42;
+        color: var(--text-2);
+      }
+
+      .msg.ai .av {
+        background: linear-gradient(#7f5bd6, #4b2f96);
+        color: #fff;
+      }
+
+      .msg .who {
+        font-weight: 600;
+        font-size: 11px;
+        color: var(--text-3);
+        margin-bottom: 3px;
+      }
+
+      .msg .text {
+        color: var(--text);
+      }
+
+      .msg .text em {
+        color: var(--text-2);
+        font-style: normal;
+        background: rgba(191, 90, 242, 0.16);
+        border-bottom: 1px solid rgba(191, 90, 242, 0.5);
+        padding: 0 3px;
+        border-radius: 3px;
+      }
+
+      .injected {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 9px 12px;
+        border-radius: 9px;
+        background: rgba(50, 215, 75, 0.1);
+        border: 1px solid rgba(50, 215, 75, 0.42);
+        font-size: 11.5px;
+        color: var(--green);
+      }
+
+      .injected b {
+        color: #7be88f;
+      }
+
+      .injected .src {
+        margin-left: auto;
+        color: var(--text-3);
+        font-weight: 400;
+      }
+
+      .term-mini {
+        font-family: var(--mono);
+        font-size: 12px;
+        line-height: 1.7;
+        padding: 12px 14px;
+        background: var(--field);
+        border-bottom: 1px solid var(--hairline);
+        white-space: pre-wrap;
+        min-height: 66px;
+      }
+
+      /* --- how it works ------------------------------------------------- */
+      .steps {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
+        gap: 14px;
+        margin-top: 26px;
+      }
+
+      .step {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        border-radius: 11px;
+        padding: 15px 16px;
+      }
+
+      .step h3 {
+        margin: 0 0 6px;
+        font-size: 13px;
+      }
+
+      .step p {
+        margin: 0;
+        color: var(--text-3);
+        font-size: 12px;
+        line-height: 1.62;
+      }
+
+      .step .n {
+        display: inline-grid;
+        place-items: center;
+        width: 20px;
+        height: 20px;
+        border-radius: 6px;
+        background: rgba(191, 90, 242, 0.2);
+        color: var(--purple);
+        font-size: 11px;
+        font-weight: 700;
+        margin-bottom: 9px;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="menubar">
+      <span class="apple">&#63743;</span>
+      <a class="name" href="https://github.com/SinghAbhinav04">Abhinav Singh</a>
+      <a href="index.html">Demos</a>
+      <a href="https://github.com/SinghAbhinav04/Omni-Memory">Repository</a>
+      <a href="https://pypi.org/project/omni-memory-agent/">PyPI</a>
+      <span class="spacer"></span>
+      <span class="clock" id="clock"></span>
+    </nav>
+
+    <main class="wrap">
+      <header class="page-head">
+        <div class="icon" style="background: linear-gradient(#cf7ff5, #8f34c2)">🧠</div>
+        <div>
+          <h1>Omni Memory</h1>
+          <p>
+            A decision made in Claude Code, remembered in Antigravity. Same repository, same branch, different editor —
+            no re-explaining.
+          </p>
+        </div>
+        <div class="links">
+          <a class="btn" href="index.html">← All demos</a>
+          <a class="btn primary" href="https://github.com/SinghAbhinav04/Omni-Memory">View source</a>
+        </div>
+      </header>
+
+      <section class="split stage">
+        <div class="win">
+          <div class="titlebar">
+            <div class="lights"><i></i><i></i><i></i></div>
+            <div class="title">Claude Code<small>~/projects/checkout-service — main</small></div>
+          </div>
+          <div class="body"><div class="term" id="left"></div></div>
+        </div>
+
+        <div class="win">
+          <div class="titlebar">
+            <div class="lights"><i></i><i></i><i></i></div>
+            <div class="title">Antigravity<small>same repo, second editor</small></div>
+          </div>
+          <div class="body" style="display: flex; flex-direction: column">
+            <div class="term-mini" id="rightTerm"></div>
+            <div class="chat" id="chat"></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="controls">
+        <button class="btn" id="replay">↻ Replay</button>
+        <span class="note">Runs automatically · roughly 14 seconds</span>
+      </div>
+
+      <section class="steps">
+        <div class="step">
+          <span class="n">1</span>
+          <h3>Capture, not self-reporting</h3>
+          <p>
+            Deterministic session hooks write the memory when the decision is made. The agent is never asked to
+            remember to remember.
+          </p>
+        </div>
+        <div class="step">
+          <span class="n">2</span>
+          <h3>Anchored to the code</h3>
+          <p>
+            A tree-sitter graph ties each memory to the symbols it is about, so a rename or a rewrite marks it stale
+            instead of leaving it quietly wrong.
+          </p>
+        </div>
+        <div class="step">
+          <span class="n">3</span>
+          <h3>Ranked without embeddings</h3>
+          <p>
+            Context-aware BM25F over symbol, file and prose fields. No vector store, no API key, no model call at
+            retrieval time.
+          </p>
+        </div>
+        <div class="step">
+          <span class="n">4</span>
+          <h3>Follows you across editors</h3>
+          <p>
+            Bind a second IDE and the same memories surface there — and for teammates on the same branch, if you share
+            the store.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      A scripted walkthrough of real behaviour — the transcript is illustrative, the mechanism is not.
+      <a href="https://github.com/SinghAbhinav04/Omni-Memory">Read the source</a>.
+    </footer>
+
+    <script type="module">
+      import { Scene, type, say, replayButton, startClock } from "./demo.js";
+
+      startClock(document.getElementById("clock"));
+
+      const left = document.getElementById("left");
+      const rightTerm = document.getElementById("rightTerm");
+      const chat = document.getElementById("chat");
+
+      const prompt = (cmd) =>
+        `<span class="p">➜</span> <span class="path">checkout-service</span> ${cmd}`;
+
+      const reset = () => {
+        left.innerHTML = "";
+        rightTerm.innerHTML = "";
+        chat.innerHTML = "";
+      };
+
+      function message(who, kind, html) {
+        return say(
+          chat,
+          `<div class="av">${kind === "ai" ? "AG" : "You"}</div>
+           <div><div class="who">${who}</div><div class="text">${html}</div></div>`,
+          `msg ${kind}`,
+        );
+      }
+
+      const scene = new Scene(
+        [
+          { at: 0, run: reset },
+          {
+            at: 300,
+            run: () => {
+              const row = say(left, "");
+              row.innerHTML = prompt("");
+              type(row, "omni-memory build", { className: "" });
+            },
+          },
+          { at: 1500, run: () => say(left, `<span class="dim">scanning repository…</span>`) },
+          {
+            at: 2100,
+            run: () =>
+              say(
+                left,
+                `<span class="dim">tree-sitter graph · 128 symbols across 14 files</span>`,
+              ),
+          },
+          {
+            at: 2700,
+            run: () => say(left, `<span class="ok">✓ index built</span> <span class="dim">branch main · 0 stale</span>`),
+          },
+          {
+            at: 3600,
+            run: () => {
+              const row = say(left, "");
+              row.innerHTML = `<span class="acc">›</span> `;
+              type(row, "use BM25F for retrieval — no embeddings, ever", { speed: 22 });
+            },
+          },
+          {
+            at: 6100,
+            run: () =>
+              say(
+                left,
+                `<span class="dim">claude ·</span> Understood. Retrieval stays lexical: BM25F over symbol, file and prose fields, boosted by the call graph. No vector store in the path.`,
+              ),
+          },
+          {
+            at: 7300,
+            run: () =>
+              say(
+                left,
+                `<div class="head"><span class="dot"></span> omni-memory · captured</div>
+                 <div class="what">Decision — retrieval is BM25F only. Embeddings are not used at retrieval time.</div>
+                 <div class="meta"><span>type: decision</span><span>branch: main</span><span>anchor: retrieval.py › rank()</span><span>confidence 0.92</span></div>`,
+                "capture",
+              ),
+          },
+          {
+            at: 8600,
+            run: () => {
+              const row = say(rightTerm, "");
+              row.innerHTML = `<span class="p">➜</span> <span class="path">checkout-service</span> `;
+              type(row, "omni-memory bind antigravity", { speed: 24 });
+            },
+          },
+          {
+            at: 10300,
+            run: () =>
+              say(
+                rightTerm,
+                `<span class="ok">✓ bound</span> <span class="dim">1 workspace · 37 memories available</span>`,
+              ),
+          },
+          {
+            at: 11200,
+            run: () => message("You", "user", "why aren’t we embedding at retrieval time?"),
+          },
+          {
+            at: 12100,
+            run: () =>
+              say(
+                chat,
+                `<span>🧠</span> <b>1 memory injected</b> <span class="src">captured in Claude Code · 4 min ago</span>`,
+                "injected",
+              ),
+          },
+          {
+            at: 13000,
+            run: () =>
+              message(
+                "Antigravity",
+                "ai",
+                `Because that was decided for this repo: <em>retrieval is BM25F only, no embeddings</em>. Ranking runs over symbol, file and prose fields with a call-graph boost, so retrieval stays offline and needs no API key.`,
+              ),
+          },
+        ],
+        { loop: true, gap: 4200 },
+      );
+
+      replayButton(document.getElementById("replay"), scene);
+      scene.play();
+    </script>
+  </body>
+</html>

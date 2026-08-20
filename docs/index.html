@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Abhinav Singh — project demos</title>
+    <meta
+      name="description"
+      content="Interactive walkthroughs of Omni Memory, Mixture of Recursions, Shanks and Vault."
+    />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>🖥️</text></svg>" />
+    <link rel="stylesheet" href="mac.css" />
+    <style>
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 18px;
+      }
+
+      a.card {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        transition:
+          transform 0.18s,
+          box-shadow 0.18s;
+      }
+
+      a.card:hover {
+        transform: translateY(-3px);
+      }
+
+      a.card:hover .win {
+        box-shadow:
+          0 16px 44px rgba(0, 0, 0, 0.62),
+          inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+      }
+
+      .card .inner {
+        padding: 18px 20px 20px;
+        display: flex;
+        gap: 15px;
+      }
+
+      .card .ico {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        flex: none;
+        display: grid;
+        place-items: center;
+        font-size: 23px;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.24);
+      }
+
+      .card h2 {
+        margin: 0 0 5px;
+        font-size: 16px;
+      }
+
+      .card p {
+        margin: 0 0 11px;
+        color: var(--text-3);
+        font-size: 12.5px;
+        line-height: 1.6;
+      }
+
+      .card .tags {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+
+      .card .go {
+        margin-top: 11px;
+        font-size: 12px;
+        color: var(--blue);
+        font-weight: 600;
+      }
+
+      .intro {
+        max-width: 66ch;
+        color: var(--text-2);
+        line-height: 1.65;
+        margin: 0 0 28px;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="menubar">
+      <span class="apple">&#63743;</span>
+      <a class="name" href="https://github.com/SinghAbhinav04">Abhinav Singh</a>
+      <a href="https://github.com/SinghAbhinav04?tab=repositories">Projects</a>
+      <a href="https://github.com/SinghAbhinav04/SinghAbhinav04/blob/main/resume.pdf">Résumé</a>
+      <a href="mailto:heysinghabhinav@gmail.com">Contact</a>
+      <span class="spacer"></span>
+      <span class="clock" id="clock"></span>
+    </nav>
+
+    <main class="wrap">
+      <header class="page-head">
+        <div class="icon" style="background: linear-gradient(#ff8fa6, #d63e60)">🖥️</div>
+        <div>
+          <h1>Project demos</h1>
+          <p>Four projects, each with a walkthrough you can watch instead of a README you have to read.</p>
+        </div>
+        <div class="links">
+          <a class="btn" href="https://github.com/SinghAbhinav04">← Profile</a>
+        </div>
+      </header>
+
+      <p class="intro">
+        Every demo below is a scripted animation of what the project actually does — the interfaces are mocks, the
+        mechanisms they show are real. Source for each is one click away.
+      </p>
+
+      <section class="grid">
+        <a class="card" href="omni-memory.html">
+          <div class="win">
+            <div class="titlebar">
+              <div class="lights"><i></i><i></i><i></i></div>
+              <div class="title">Omni Memory</div>
+            </div>
+            <div class="inner">
+              <div class="ico" style="background: linear-gradient(#cf7ff5, #8f34c2)">🧠</div>
+              <div>
+                <h2>Omni Memory</h2>
+                <p>
+                  A decision captured in Claude Code, recalled in Antigravity — same repo, different editor, no
+                  re-explaining.
+                </p>
+                <div class="tags">
+                  <span class="chip">Python</span><span class="chip">SQLite</span><span class="chip">tree-sitter</span>
+                </div>
+                <div class="go">Watch the handoff →</div>
+              </div>
+            </div>
+          </div>
+        </a>
+
+        <a class="card" href="mixture-of-recursions.html">
+          <div class="win">
+            <div class="titlebar">
+              <div class="lights"><i></i><i></i><i></i></div>
+              <div class="title">Mixture of Recursions</div>
+            </div>
+            <div class="inner">
+              <div class="ico" style="background: linear-gradient(#ffc45e, #e07d0a)">🧩</div>
+              <div>
+                <h2>Mixture of Recursions</h2>
+                <p>
+                  Watch a sentence walk the network — every token routed to its own depth through one shared block.
+                </p>
+                <div class="tags">
+                  <span class="chip">PyTorch</span><span class="chip">Research</span><span class="chip">arXiv</span>
+                </div>
+                <div class="go">See the forward pass →</div>
+              </div>
+            </div>
+          </div>
+        </a>
+
+        <a class="card" href="shanks.html">
+          <div class="win">
+            <div class="titlebar">
+              <div class="lights"><i></i><i></i><i></i></div>
+              <div class="title">Shanks</div>
+            </div>
+            <div class="inner">
+              <div class="ico" style="background: linear-gradient(#8fe1ff, #1d94c9)">🎙️</div>
+              <div>
+                <h2>Shanks</h2>
+                <p>
+                  A voice assistant that listens, answers and actually operates the machine — drawn as a face made of
+                  dots.
+                </p>
+                <div class="tags">
+                  <span class="chip">TypeScript</span><span class="chip">Gemini Live</span><span class="chip">Voice</span>
+                </div>
+                <div class="go">Hear it out →</div>
+              </div>
+            </div>
+          </div>
+        </a>
+
+        <a class="card" href="vault.html">
+          <div class="win">
+            <div class="titlebar">
+              <div class="lights"><i></i><i></i><i></i></div>
+              <div class="title">Vault</div>
+            </div>
+            <div class="inner">
+              <div class="ico" style="background: linear-gradient(#6ce88a, #219b3c)">🔒</div>
+              <div>
+                <h2>Vault</h2>
+                <p>
+                  Plug the drive in, watch it mount, scan, ask for a password and open — with nothing installed on the
+                  host.
+                </p>
+                <div class="tags">
+                  <span class="chip">Rust</span><span class="chip">Cryptography</span><span class="chip">Zero-install</span>
+                </div>
+                <div class="go">Plug it in →</div>
+              </div>
+            </div>
+          </div>
+        </a>
+      </section>
+    </main>
+
+    <footer class="footer">
+      Built by <a href="https://github.com/SinghAbhinav04">Abhinav Singh</a> · source for this page lives in
+      <a href="https://github.com/SinghAbhinav04/SinghAbhinav04/tree/main/docs">the profile repository</a>.
+    </footer>
+
+    <script type="module">
+      import { startClock } from "./demo.js";
+      startClock(document.getElementById("clock"));
+    </script>
+  </body>
+</html>

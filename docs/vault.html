@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Vault — live demo</title>
+    <meta
+      name="description"
+      content="Plug the drive into any machine, enter a password, get your files. Nothing installed on the host. Interactive walkthrough of Vault."
+    />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>🔒</text></svg>" />
+    <link rel="stylesheet" href="mac.css" />
+    <style>
+      /* ------------------------------------------------------- the laptop */
+      .laptop {
+        max-width: 860px;
+        margin: 0 auto;
+        position: relative;
+      }
+
+      .lid {
+        position: relative;
+        z-index: 2;
+        background: #2a2a2e;
+        border-radius: 16px;
+        padding: 13px 13px 20px;
+        box-shadow: var(--shadow), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+      }
+
+      .screen {
+        background: #0a0a0c;
+        border-radius: 7px;
+        overflow: hidden;
+        height: 430px;
+        display: flex;
+        flex-direction: column;
+        box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.9);
+      }
+
+      .base {
+        height: 13px;
+        background: linear-gradient(#c6c6cc, #8e8e96);
+        border-radius: 0 0 12px 12px;
+        margin: 0 -18px;
+        position: relative;
+      }
+
+      .base::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 0;
+        transform: translateX(-50%);
+        width: 96px;
+        height: 5px;
+        background: #7a7a82;
+        border-radius: 0 0 6px 6px;
+      }
+
+      /* the USB stick that slides into the port on the left edge */
+      .port {
+        position: absolute;
+        left: -98px;
+        top: 190px;
+        width: 110px;
+        height: 30px;
+        z-index: 1;
+        transform: translateX(-84px);
+        opacity: 0;
+        transition:
+          transform 1.05s cubic-bezier(0.3, 0.9, 0.3, 1),
+          opacity 0.4s;
+      }
+
+      .port.in {
+        transform: translateX(0);
+        opacity: 1;
+      }
+
+      .stick {
+        height: 100%;
+        border-radius: 6px 3px 3px 6px;
+        background: linear-gradient(#4a4a52, #2a2a30);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+        display: flex;
+        align-items: center;
+        padding-left: 11px;
+        gap: 7px;
+        font-size: 10px;
+        color: var(--text-3);
+        letter-spacing: 0.5px;
+      }
+
+      .stick .led {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #3a3a42;
+      }
+
+      .port.live .stick .led {
+        background: var(--green);
+        box-shadow: 0 0 8px var(--green);
+        animation: flicker 0.9s infinite;
+      }
+
+      @keyframes flicker {
+        50% {
+          opacity: 0.35;
+        }
+      }
+
+      /* --------------------------------------------------- finder inside */
+      .finder {
+        flex: 1;
+        display: flex;
+        min-height: 0;
+      }
+
+      .side {
+        width: 176px;
+        flex: none;
+        background: var(--sidebar);
+        border-right: 1px solid rgba(0, 0, 0, 0.5);
+        padding: 10px 8px;
+        font-size: 11.5px;
+      }
+
+      .side h4 {
+        margin: 8px 0 6px 9px;
+        font-size: 9.5px;
+        letter-spacing: 0.7px;
+        text-transform: uppercase;
+        color: var(--text-4);
+        font-weight: 600;
+      }
+
+      .side .row {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 6px 9px;
+        border-radius: 6px;
+        color: var(--text-2);
+      }
+
+      .side .row.sel {
+        background: #3a3a3e;
+        color: var(--text);
+        font-weight: 600;
+      }
+
+      .side .row.device {
+        color: var(--green);
+      }
+
+      .content {
+        flex: 1;
+        min-width: 0;
+        display: grid;
+        place-items: center;
+        padding: 20px;
+        text-align: center;
+      }
+
+      .empty {
+        color: var(--text-4);
+        font-size: 12.5px;
+      }
+
+      /* the scan + unlock gate */
+      .gate {
+        max-width: 300px;
+      }
+
+      .gate .badge {
+        width: 62px;
+        height: 62px;
+        margin: 0 auto 15px;
+        border-radius: 15px;
+        display: grid;
+        place-items: center;
+        font-size: 28px;
+        background: linear-gradient(#5fe07a, #1f9c39);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+      }
+
+      .gate h3 {
+        margin: 0 0 5px;
+        font-size: 15px;
+      }
+
+      .gate p {
+        margin: 0 0 16px;
+        color: var(--text-3);
+        font-size: 12px;
+        line-height: 1.6;
+      }
+
+      .bar {
+        height: 5px;
+        border-radius: 3px;
+        background: rgba(255, 255, 255, 0.1);
+        overflow: hidden;
+        margin-bottom: 8px;
+      }
+
+      .bar i {
+        display: block;
+        height: 100%;
+        width: 0;
+        background: var(--green);
+        transition: width 0.35s linear;
+      }
+
+      .pw {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        background: var(--field);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 7px;
+        padding: 9px 12px;
+        font-family: var(--mono);
+        letter-spacing: 3px;
+        font-size: 13px;
+        min-height: 38px;
+      }
+
+      .pw.focus {
+        border-color: var(--blue);
+        box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.28);
+      }
+
+      .pw .dots {
+        flex: 1;
+        text-align: left;
+        color: var(--text);
+      }
+
+      .files {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px 10px;
+        width: 100%;
+        align-self: start;
+        padding-top: 6px;
+      }
+
+      .file {
+        font-size: 11px;
+        color: var(--text-2);
+      }
+
+      .file .ico {
+        font-size: 30px;
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      /* animated pointer */
+      .cursor {
+        position: absolute;
+        width: 19px;
+        height: 19px;
+        pointer-events: none;
+        opacity: 0;
+        transition:
+          left 0.85s cubic-bezier(0.4, 0, 0.2, 1),
+          top 0.85s cubic-bezier(0.4, 0, 0.2, 1),
+          opacity 0.3s;
+        z-index: 5;
+        filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.7));
+      }
+
+      .cursor.on {
+        opacity: 1;
+      }
+
+      .toast {
+        position: absolute;
+        right: 22px;
+        top: 22px;
+        background: rgba(28, 28, 30, 0.95);
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 10px;
+        padding: 11px 14px;
+        font-size: 12px;
+        box-shadow: var(--shadow);
+        opacity: 0;
+        transform: translateY(-8px);
+        transition: 0.32s;
+        z-index: 6;
+      }
+
+      .toast.on {
+        opacity: 1;
+        transform: none;
+      }
+
+      .toast b {
+        display: block;
+        margin-bottom: 2px;
+      }
+
+      .toast span {
+        color: var(--text-3);
+      }
+
+      .caps {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
+        gap: 14px;
+        margin-top: 28px;
+      }
+
+      .cap {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        border-radius: 11px;
+        padding: 15px 16px;
+      }
+
+      .cap h3 {
+        margin: 0 0 6px;
+        font-size: 13px;
+      }
+
+      .cap p {
+        margin: 0;
+        color: var(--text-3);
+        font-size: 12px;
+        line-height: 1.62;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="menubar">
+      <span class="apple">&#63743;</span>
+      <a class="name" href="https://github.com/SinghAbhinav04">Abhinav Singh</a>
+      <a href="index.html">Demos</a>
+      <a href="https://github.com/SinghAbhinav04/make-it-personal">Repository</a>
+      <span class="spacer"></span>
+      <span class="clock" id="clock"></span>
+    </nav>
+
+    <main class="wrap">
+      <header class="page-head">
+        <div class="icon" style="background: linear-gradient(#6ce88a, #219b3c)">🔒</div>
+        <div>
+          <h1>Vault <span class="chip" style="vertical-align: 6px">make-it-personal</span></h1>
+          <p>
+            The binary rides on the drive. Plug it into any machine, enter a password, get your files — nothing is
+            installed on the host and nothing is left behind.
+          </p>
+        </div>
+        <div class="links">
+          <a class="btn" href="index.html">← All demos</a>
+          <a class="btn primary" href="https://github.com/SinghAbhinav04/make-it-personal">View source</a>
+        </div>
+      </header>
+
+      <section class="laptop">
+        <div class="port" id="port">
+          <div class="stick"><span class="led"></span>VAULT</div>
+        </div>
+
+        <div class="toast" id="toast"><b>VAULT mounted</b><span id="toastSub">32 GB · encrypted volume</span></div>
+
+        <svg class="cursor" id="cursor" viewBox="0 0 20 20" fill="none">
+          <path d="M3 2l12 9-5.5.6L12 18l-2.3.9-2.5-5.7L3 16.5z" fill="#fff" stroke="#000" stroke-width="1.1" stroke-linejoin="round" />
+        </svg>
+
+        <div class="lid">
+          <div class="screen">
+            <div class="titlebar">
+              <div class="lights"><i></i><i></i><i></i></div>
+              <div class="title" id="winTitle">Finder<small id="winSub">Macintosh HD</small></div>
+            </div>
+            <div class="finder">
+              <aside class="side">
+                <h4>Favourites</h4>
+                <div class="row sel">🗂️ Documents</div>
+                <div class="row">⬇️ Downloads</div>
+                <div class="row">🖥️ Desktop</div>
+                <div id="devices"></div>
+              </aside>
+              <div class="content" id="content">
+                <div class="empty">No external volumes connected</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="base"></div>
+      </section>
+
+      <div class="controls">
+        <button class="btn" id="replay">↻ Replay</button>
+        <span class="note">Runs automatically · roughly 16 seconds</span>
+      </div>
+
+      <section class="caps">
+        <div class="cap">
+          <h3>Nothing installed</h3>
+          <p>
+            No runtime, no driver, no agent on the host. A single Rust binary on the drive is the whole program, so a
+            borrowed machine stays exactly as you found it.
+          </p>
+        </div>
+        <div class="cap">
+          <h3>Encrypted at rest</h3>
+          <p>
+            The volume is opaque until the password derives the key. Pull the drive and what is left is ciphertext, not
+            a folder someone forgot to lock.
+          </p>
+        </div>
+        <div class="cap">
+          <h3>Goes where you go</h3>
+          <p>
+            Any machine that can run the binary can open the vault — the drive carries the program and the data
+            together rather than depending on the computer.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      A scripted walkthrough of the flow — the interface is a mock, the model it describes is the project's.
+      <a href="https://github.com/SinghAbhinav04/make-it-personal">Read the source</a>.
+    </footer>
+
+    <script type="module">
+      import { Scene, replayButton, startClock } from "./demo.js";
+
+      startClock(document.getElementById("clock"));
+
+      const port = document.getElementById("port");
+      const toast = document.getElementById("toast");
+      const cursor = document.getElementById("cursor");
+      const devices = document.getElementById("devices");
+      const content = document.getElementById("content");
+      const winTitle = document.getElementById("winTitle");
+      const winSub = document.getElementById("winSub");
+
+      /** Move the pointer to an element's centre, in laptop-relative coords. */
+      function pointAt(el, dx = 0, dy = 0) {
+        const stage = document.querySelector(".laptop").getBoundingClientRect();
+        const box = el.getBoundingClientRect();
+        cursor.classList.add("on");
+        cursor.style.left = `${box.left - stage.left + box.width / 2 + dx}px`;
+        cursor.style.top = `${box.top - stage.top + box.height / 2 + dy}px`;
+      }
+
+      const reset = () => {
+        port.classList.remove("in", "live");
+        toast.classList.remove("on");
+        cursor.classList.remove("on");
+        cursor.style.left = "60%";
+        cursor.style.top = "78%";
+        devices.innerHTML = "";
+        winSub.textContent = "Macintosh HD";
+        content.innerHTML = `<div class="empty">No external volumes connected</div>`;
+      };
+
+      const scene = new Scene(
+        [
+          { at: 0, run: reset },
+
+          // 1 — the drive goes in
+          { at: 700, run: () => port.classList.add("in") },
+          { at: 1750, run: () => port.classList.add("live") },
+          { at: 2100, run: () => toast.classList.add("on") },
+
+          // 2 — it appears under Devices
+          {
+            at: 2400,
+            run: () => {
+              devices.innerHTML = `<h4>Devices</h4><div class="row device fade" id="dev">💾 VAULT</div>`;
+            },
+          },
+          { at: 3200, run: () => toast.classList.remove("on") },
+
+          // 3 — the pointer goes and clicks it
+          { at: 3400, run: () => pointAt(document.getElementById("dev"), 6, 4) },
+          {
+            at: 4400,
+            run: () => {
+              const dev = document.getElementById("dev");
+              dev.classList.add("sel");
+              dev.style.background = "#2f4a35";
+            },
+          },
+
+          // 4 — the drive is scanned before it will talk to you
+          {
+            at: 4800,
+            run: () => {
+              winSub.textContent = "VAULT";
+              content.innerHTML = `
+                <div class="gate fade">
+                  <div class="badge">🔍</div>
+                  <h3>Scanning drive</h3>
+                  <p>Reading volume header · verifying the vault binary signature</p>
+                  <div class="bar"><i id="scan"></i></div>
+                  <p style="font-family: var(--mono); font-size: 11px" id="scanLine">vault v0.4 · AES-256-GCM</p>
+                </div>`;
+              requestAnimationFrame(() => (document.getElementById("scan").style.width = "100%"));
+            },
+          },
+
+          // 5 — password gate
+          {
+            at: 6600,
+            run: () => {
+              content.innerHTML = `
+                <div class="gate fade">
+                  <div class="badge">🔒</div>
+                  <h3>This volume is encrypted</h3>
+                  <p>Enter the vault password. The key is derived on this machine and never written to it.</p>
+                  <div class="pw focus"><span class="dots" id="dots"></span><span>⏎</span></div>
+                </div>`;
+              cursor.classList.remove("on");
+            },
+          },
+          {
+            at: 7200,
+            run: () => {
+              // type the password one dot at a time
+              const dots = document.getElementById("dots");
+              let i = 0;
+              const tick = () => {
+                if (!document.getElementById("dots")) return;
+                dots.textContent = "•".repeat(++i);
+                if (i < 11) setTimeout(tick, 105);
+              };
+              tick();
+            },
+          },
+
+          // 6 — unlock
+          {
+            at: 8900,
+            run: () => {
+              content.innerHTML = `
+                <div class="gate fade">
+                  <div class="badge">🔓</div>
+                  <h3>Unlocking</h3>
+                  <p>Deriving key · decrypting index</p>
+                  <div class="bar"><i id="dec"></i></div>
+                </div>`;
+              requestAnimationFrame(() => (document.getElementById("dec").style.width = "100%"));
+            },
+          },
+
+          // 7 — the files
+          {
+            at: 10800,
+            run: () => {
+              winSub.textContent = "VAULT — 6 items · unlocked";
+              content.innerHTML = `
+                <div class="files fade">
+                  ${[
+                    ["📄", "passports.pdf"],
+                    ["🔑", "keys.age"],
+                    ["📁", "tax-2026"],
+                    ["🖼️", "scans"],
+                    ["📓", "journal.md"],
+                    ["💼", "contracts"],
+                    ["🗄️", "backups"],
+                    ["📄", "recovery.txt"],
+                  ]
+                    .map(([ico, name]) => `<div class="file"><span class="ico">${ico}</span>${name}</div>`)
+                    .join("")}
+                </div>`;
+            },
+          },
+          {
+            at: 11400,
+            run: () => {
+              document.getElementById("toastSub").textContent = "unlocked · nothing written to this Mac";
+              toast.querySelector("b").textContent = "VAULT open";
+              toast.classList.add("on");
+            },
+          },
+          { at: 14200, run: () => toast.classList.remove("on") },
+        ],
+        { loop: true, gap: 3200 },
+      );
+
+      replayButton(document.getElementById("replay"), scene);
+      scene.play();
+    </script>
+  </body>
+</html>

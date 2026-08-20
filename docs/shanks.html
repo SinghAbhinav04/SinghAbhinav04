@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Shanks — live demo</title>
+    <meta
+      name="description"
+      content="A voice assistant that acts on your machine. Watch it listen, think and answer — speech in and out through the Gemini Live API."
+    />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>🎙️</text></svg>" />
+    <link rel="stylesheet" href="mac.css" />
+    <style>
+      .stage {
+        grid-template-columns: 1.05fr 1fr;
+      }
+
+      .stage .win {
+        height: 486px;
+      }
+
+      .face-body {
+        position: relative;
+        background: #08080a;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      #face {
+        flex: 1;
+        width: 100%;
+        display: block;
+      }
+
+      .state {
+        position: absolute;
+        top: 14px;
+        left: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 11px;
+        letter-spacing: 0.7px;
+        text-transform: uppercase;
+        color: var(--text-3);
+      }
+
+      .state .led {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--text-4);
+        transition: background 0.25s;
+      }
+
+      .state[data-mode="listening"] .led {
+        background: var(--teal);
+        box-shadow: 0 0 11px var(--teal);
+      }
+
+      .state[data-mode="thinking"] .led {
+        background: var(--orange);
+        box-shadow: 0 0 11px var(--orange);
+      }
+
+      .state[data-mode="speaking"] .led {
+        background: var(--green);
+        box-shadow: 0 0 11px var(--green);
+      }
+
+      .state[data-mode="acting"] .led {
+        background: var(--pink);
+        box-shadow: 0 0 11px var(--pink);
+      }
+
+      .levels {
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        gap: 3px;
+        height: 46px;
+        padding: 0 18px 16px;
+      }
+
+      .levels i {
+        width: 3px;
+        border-radius: 2px;
+        background: var(--teal);
+        opacity: 0.75;
+        height: 3px;
+      }
+
+      /* --- transcript ---------------------------------------------------- */
+      .transcript {
+        padding: 16px 18px;
+        height: 100%;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .turn {
+        font-size: 12.5px;
+        line-height: 1.6;
+      }
+
+      .turn .who {
+        font-size: 10.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: var(--text-4);
+        margin-bottom: 3px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .turn.you .who b {
+        color: var(--teal);
+      }
+
+      .turn.ai .who b {
+        color: var(--green);
+      }
+
+      .turn .text {
+        color: var(--text);
+      }
+
+      .action {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 8px 11px;
+        border-radius: 8px;
+        background: rgba(255, 92, 126, 0.1);
+        border: 1px solid rgba(255, 92, 126, 0.4);
+        font-family: var(--mono);
+        font-size: 11.5px;
+        color: #ff8ea8;
+      }
+
+      .action .res {
+        margin-left: auto;
+        color: var(--text-3);
+        font-family: var(--ui);
+      }
+
+      .caps {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 14px;
+        margin-top: 26px;
+      }
+
+      .cap {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        border-radius: 11px;
+        padding: 15px 16px;
+      }
+
+      .cap h3 {
+        margin: 0 0 6px;
+        font-size: 13px;
+      }
+
+      .cap p {
+        margin: 0;
+        color: var(--text-3);
+        font-size: 12px;
+        line-height: 1.62;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="menubar">
+      <span class="apple">&#63743;</span>
+      <a class="name" href="https://github.com/SinghAbhinav04">Abhinav Singh</a>
+      <a href="index.html">Demos</a>
+      <a href="https://github.com/SinghAbhinav04/Shanks">Repository</a>
+      <span class="spacer"></span>
+      <span class="clock" id="clock"></span>
+    </nav>
+
+    <main class="wrap">
+      <header class="page-head">
+        <div class="icon" style="background: linear-gradient(#8fe1ff, #1d94c9)">🎙️</div>
+        <div>
+          <h1>Shanks</h1>
+          <p>
+            Speech in and out natively through the Gemini Live API — no transcribe-then-synthesise chain. It reads
+            hardware state and drives the desktop, so answering and acting are the same turn.
+          </p>
+        </div>
+        <div class="links">
+          <a class="btn" href="index.html">← All demos</a>
+          <a class="btn primary" href="https://github.com/SinghAbhinav04/Shanks">View source</a>
+        </div>
+      </header>
+
+      <section class="split stage">
+        <div class="win">
+          <div class="titlebar">
+            <div class="lights"><i></i><i></i><i></i></div>
+            <div class="title">Shanks<small>voice session · gemini-live</small></div>
+          </div>
+          <div class="body">
+            <div class="face-body">
+              <div class="state" id="state" data-mode="idle"><span class="led"></span><span id="stateText">idle</span></div>
+              <canvas id="face"></canvas>
+              <div class="levels" id="levels"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="win">
+          <div class="titlebar">
+            <div class="lights"><i></i><i></i><i></i></div>
+            <div class="title">Transcript<small>what was said, and what it did</small></div>
+          </div>
+          <div class="body"><div class="transcript" id="log"></div></div>
+        </div>
+      </section>
+
+      <div class="controls">
+        <button class="btn" id="replay">↻ Replay</button>
+        <span class="note">Runs automatically · the face is drawn live, dot by dot</span>
+      </div>
+
+      <section class="caps">
+        <div class="cap">
+          <h3>Native duplex audio</h3>
+          <p>
+            Audio goes straight in and out of the Gemini Live API. Nothing is transcribed to text and re-synthesised,
+            so the turn does not stack three models' worth of latency.
+          </p>
+        </div>
+        <div class="cap">
+          <h3>It can actually act</h3>
+          <p>
+            Reads hardware state, sets volume, toggles Wi-Fi, launches applications and looks things up — the answer
+            and the action are one turn, not a suggestion to go do it yourself.
+          </p>
+        </div>
+        <div class="cap">
+          <h3>Remembers across sessions</h3>
+          <p>
+            What you tell it persists, so preferences and context survive a restart instead of resetting every time
+            you open the mic.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      A scripted walkthrough — the transcript is illustrative, the behaviour it describes is what the project does.
+      <a href="https://github.com/SinghAbhinav04/Shanks">Read the source</a>.
+    </footer>
+
+    <script type="module">
+      import { Scene, say, replayButton, startClock } from "./demo.js";
+
+      startClock(document.getElementById("clock"));
+
+      /* ------------------------------------------------- the dot-matrix face */
+
+      const canvas = document.getElementById("face");
+      const ctx = canvas.getContext("2d");
+      const SPACING = 11;
+
+      let mode = "idle"; // idle | listening | thinking | speaking | acting
+      let openTarget = 0; // how far the mouth is open, 0..1
+      let open = 0;
+      let blink = 0;
+      let nextBlink = 1400;
+
+      function resize() {
+        const rect = canvas.getBoundingClientRect();
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.round(rect.width * dpr);
+        canvas.height = Math.round(rect.height * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+      new ResizeObserver(resize).observe(canvas);
+
+      const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+
+      /**
+       * Amplitude envelope standing in for speech: a few detuned sines so the
+       * mouth moves like syllables rather than a metronome.
+       */
+      function envelope(t) {
+        const s = Math.sin(t * 11.3) * 0.5 + Math.sin(t * 7.1 + 1.2) * 0.3 + Math.sin(t * 17.7 + 0.4) * 0.2;
+        return clamp(Math.abs(s) * 1.15, 0, 1);
+      }
+
+      function draw(now) {
+        const t = now / 1000;
+        const rect = canvas.getBoundingClientRect();
+        const w = rect.width;
+        const h = rect.height;
+        if (!w || !h) return requestAnimationFrame(draw);
+
+        // mouth target per mode
+        if (mode === "speaking") openTarget = envelope(t);
+        else if (mode === "thinking") openTarget = 0.06 + Math.sin(t * 2.2) * 0.03;
+        else if (mode === "listening") openTarget = 0.04;
+        else openTarget = 0.03;
+        open += (openTarget - open) * 0.35;
+
+        // an occasional blink keeps it from looking like a dead grid
+        if (now > nextBlink) {
+          blink = 1;
+          nextBlink = now + 2600 + Math.random() * 2600;
+        }
+        blink = Math.max(0, blink - 0.09);
+
+        ctx.clearRect(0, 0, w, h);
+
+        const cx = w / 2;
+        const cy = h / 2;
+        const R = Math.min(w, h) * 0.42;
+        const cols = Math.ceil(w / SPACING);
+        const rows = Math.ceil(h / SPACING);
+        const offX = (w - (cols - 1) * SPACING) / 2;
+        const offY = (h - (rows - 1) * SPACING) / 2;
+
+        const eyeOpen = 1 - blink;
+        const pulse = mode === "listening" ? 0.5 + 0.5 * Math.sin(t * 3.4) : 0;
+
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            const px = offX + c * SPACING;
+            const py = offY + r * SPACING;
+            // normalised face space
+            const nx = (px - cx) / R;
+            const ny = (py - cy) / R;
+            const rad = Math.hypot(nx, ny * 0.94);
+
+            let a = 0;
+            let color = "180, 210, 230";
+
+            if (rad < 0.98) a = 0.09; // the head fill, barely there
+            if (Math.abs(rad - 0.98) < 0.045) a = Math.max(a, 0.34); // rim
+
+            // eyes
+            for (const ex of [-0.35, 0.35]) {
+              const d = Math.hypot((nx - ex) / 0.17, (ny + 0.24) / (0.17 * eyeOpen + 0.02));
+              if (d < 1) {
+                a = Math.max(a, 0.95);
+                color = "120, 220, 255";
+              }
+            }
+
+            // mouth — an ellipse whose height rides the envelope
+            const my = (ny - 0.36) / (0.045 + open * 0.3);
+            const mx = (nx - 0) / (0.34 + open * 0.05);
+            if (mx * mx + my * my < 1) {
+              a = Math.max(a, 0.92);
+              color = "120, 220, 255";
+            }
+
+            // listening halo
+            if (pulse && Math.abs(rad - (1.1 + pulse * 0.16)) < 0.03) {
+              a = Math.max(a, 0.18 + pulse * 0.2);
+              color = "100, 210, 255";
+            }
+
+            if (a < 0.02) continue;
+            const size = 1.4 + a * 2.4;
+            ctx.fillStyle = `rgba(${color}, ${a})`;
+            ctx.beginPath();
+            ctx.arc(px, py, size / 2, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+        requestAnimationFrame(draw);
+      }
+      requestAnimationFrame(draw);
+
+      /* --------------------------------------------------------- level meter */
+
+      const levels = document.getElementById("levels");
+      const BARS = 44;
+      for (let i = 0; i < BARS; i++) levels.appendChild(document.createElement("i"));
+      const bars = [...levels.children];
+
+      setInterval(() => {
+        const t = performance.now() / 1000;
+        bars.forEach((bar, i) => {
+          const active = mode === "speaking" || mode === "listening";
+          const centre = 1 - Math.abs(i - BARS / 2) / (BARS / 2);
+          const amp = active ? envelope(t + i * 0.055) * centre : 0.02;
+          bar.style.height = `${3 + amp * 34}px`;
+          bar.style.background = mode === "speaking" ? "var(--green)" : "var(--teal)";
+          bar.style.opacity = active ? 0.35 + amp * 0.6 : 0.16;
+        });
+      }, 55);
+
+      /* ------------------------------------------------------------- the scene */
+
+      const log = document.getElementById("log");
+      const stateEl = document.getElementById("state");
+      const stateText = document.getElementById("stateText");
+
+      function setMode(next) {
+        mode = next;
+        stateEl.dataset.mode = next;
+        stateText.textContent = next;
+      }
+
+      const turn = (who, kind, text) =>
+        say(log, `<div class="who"><b>${who}</b></div><div class="text">${text}</div>`, `turn ${kind}`);
+
+      const scene = new Scene(
+        [
+          {
+            at: 0,
+            run: () => {
+              log.innerHTML = "";
+              setMode("idle");
+            },
+          },
+          { at: 500, run: () => setMode("listening") },
+          { at: 1400, run: () => turn("You · voice", "you", "hey Shanks, how much battery have I got left?") },
+          { at: 3400, run: () => setMode("thinking") },
+          {
+            at: 4000,
+            run: () =>
+              say(log, `<span>⌁</span> read_power_state()<span class="res">62% · not charging</span>`, "action"),
+          },
+          { at: 4700, run: () => setMode("speaking") },
+          { at: 4900, run: () => turn("Shanks", "ai", "Sixty-two percent, and you’re off the charger.") },
+          { at: 7000, run: () => setMode("listening") },
+          { at: 7600, run: () => turn("You · voice", "you", "turn the volume down and open Spotify") },
+          { at: 9600, run: () => setMode("acting") },
+          { at: 10000, run: () => say(log, `<span>⌁</span> set_volume(30)<span class="res">done</span>`, "action") },
+          {
+            at: 10700,
+            run: () => say(log, `<span>⌁</span> launch_app("Spotify")<span class="res">running</span>`, "action"),
+          },
+          { at: 11500, run: () => setMode("speaking") },
+          { at: 11700, run: () => turn("Shanks", "ai", "Volume’s at thirty and Spotify is up.") },
+          { at: 14000, run: () => setMode("idle") },
+        ],
+        { loop: true, gap: 3000 },
+      );
+
+      replayButton(document.getElementById("replay"), scene);
+      scene.play();
+    </script>
+  </body>
+</html>
