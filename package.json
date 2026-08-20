@@ -1,0 +1,17 @@
+{
+  "name": "macos-readme",
+  "version": "1.0.0",
+  "description": "Generates a macOS-styled GitHub profile README as a stack of SVG windows",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "fonts": "node scripts/fetch-fonts.mjs",
+    "preview": "node scripts/preview.mjs"
+  },
+  "dependencies": {
+    "fontkit": "^2.0.4",
+    "simple-icons": "^16.28.0",
+    "subset-font": "^2.5.0"
+  }
+}
