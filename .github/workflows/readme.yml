@@ -1,0 +1,55 @@
+name: Refresh README
+
+on:
+  schedule:
+    # 01:30 UTC daily = 07:00 IST
+    - cron: "30 1 * * *"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/**"
+      - "assets/fonts/**"
+      - "package.json"
+      - ".github/workflows/readme.yml"
+  workflow_dispatch:
+
+# Required so the job can push the regenerated SVGs back.
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-readme
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - run: npm ci
+
+      - name: Rebuild the desktop
+        env:
+          # STATS_TOKEN is an optional classic PAT with `read:user` — it lets the
+          # commit count include private contributions. Without it the built-in
+          # token is used and only public activity is counted.
+          GITHUB_TOKEN: ${{ secrets.STATS_TOKEN || secrets.GITHUB_TOKEN }}
+        run: npm run build
+
+      - name: Commit if anything changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain README.md assets)" ]; then
+            git add README.md assets
+            git commit -m "chore: refresh README stats"
+            git push
+          else
+            echo "no changes"
+          fi
