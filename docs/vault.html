@@ -8,7 +8,7 @@
       name="description"
       content="Plug the drive into any machine, enter a password, get your files. Nothing installed on the host. Interactive walkthrough of Vault."
     />
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>🔒</text></svg>" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%2332d74b' d='M12 2.4c2.8 0 5 2.2 5 5v2.2h.8c.9 0 1.6.7 1.6 1.6v9c0 .9-.7 1.6-1.6 1.6H6.2c-.9 0-1.6-.7-1.6-1.6v-9c0-.9.7-1.6 1.6-1.6H7V7.4c0-2.8 2.2-5 5-5zm0 2c-1.7 0-3 1.3-3 3v2.2h6V7.4c0-1.7-1.3-3-3-3z'/></svg>" />
     <link rel="stylesheet" href="mac.css" />
     <style>
       /* ------------------------------------------------------- the laptop */
@@ -144,6 +144,14 @@
         color: var(--text-2);
       }
 
+      .side .row svg {
+        width: 14px;
+        height: 14px;
+        flex: none;
+        fill: currentColor;
+        opacity: 0.9;
+      }
+
       .side .row.sel {
         background: #3a3a3e;
         color: var(--text);
@@ -180,9 +188,14 @@
         border-radius: 15px;
         display: grid;
         place-items: center;
-        font-size: 28px;
         background: linear-gradient(#5fe07a, #1f9c39);
         box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+      }
+
+      .gate .badge svg {
+        width: 30px;
+        height: 30px;
+        fill: #fff;
       }
 
       .gate h3 {
@@ -253,9 +266,15 @@
       }
 
       .file .ico {
-        font-size: 30px;
         display: block;
-        margin-bottom: 5px;
+        width: 30px;
+        height: 30px;
+        margin: 0 auto 6px;
+      }
+
+      .file .ico svg {
+        width: 100%;
+        height: 100%;
       }
 
       /* animated pointer */
@@ -346,7 +365,13 @@
 
     <main class="wrap">
       <header class="page-head">
-        <div class="icon" style="background: linear-gradient(#6ce88a, #219b3c)">🔒</div>
+        <div class="icon" style="background: linear-gradient(#6ce88a, #219b3c)">
+          <svg class="mark" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M12 2.4c2.8 0 5 2.2 5 5v2.2h.8c.9 0 1.6.7 1.6 1.6v9c0 .9-.7 1.6-1.6 1.6H6.2c-.9 0-1.6-.7-1.6-1.6v-9c0-.9.7-1.6 1.6-1.6H7V7.4c0-2.8 2.2-5 5-5zm0 2c-1.7 0-3 1.3-3 3v2.2h6V7.4c0-1.7-1.3-3-3-3z"
+            />
+          </svg>
+        </div>
         <div>
           <h1>Vault <span class="chip" style="vertical-align: 6px">make-it-personal</span></h1>
           <p>
@@ -380,9 +405,32 @@
             <div class="finder">
               <aside class="side">
                 <h4>Favourites</h4>
-                <div class="row sel">🗂️ Documents</div>
-                <div class="row">⬇️ Downloads</div>
-                <div class="row">🖥️ Desktop</div>
+                <div class="row sel">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                      d="M3 6.6c0-1 .8-1.8 1.8-1.8h4.1c.6 0 1.2.3 1.5.8l.9 1.3h7c1 0 1.8.8 1.8 1.8v8.9c0 1-.8 1.8-1.8 1.8H4.8c-1 0-1.8-.8-1.8-1.8z"
+                    />
+                  </svg>
+                  Documents
+                </div>
+                <div class="row">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                      d="M12 4.5 V17 M6.5 11.5 L12 17.2 L17.5 11.5"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                  Downloads
+                </div>
+                <div class="row">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M3.4 3.4h7v7h-7zm10.2 0h7v7h-7zM3.4 13.6h7v7h-7zm10.2 0h7v7h-7z" />
+                  </svg>
+                  Desktop
+                </div>
                 <div id="devices"></div>
               </aside>
               <div class="content" id="content">
@@ -434,6 +482,24 @@
 
       startClock(document.getElementById("clock"));
 
+      /**
+       * The marks the Finder mock draws, from the same glyph set the README
+       * uses. `fill` is left to CSS so each one inherits its row's colour.
+       */
+      const svg = (body, fill) =>
+        `<svg viewBox="0 0 24 24" aria-hidden="true"${fill ? ` style="fill:${fill}"` : ""}>${body}</svg>`;
+
+      const G = {
+        drive: `<path d="M12 2.4 3 7v10l9 4.6 9-4.6V7zm0 2.1 6.5 3.3L12 11.1 5.5 7.8zM5 9.6l6 3v7l-6-3zm14 0v7l-6 3v-7z"/>`,
+        doc: `<path d="M6 3.2h7.2L19 9v11.4c0 .9-.7 1.6-1.6 1.6H6c-.9 0-1.6-.7-1.6-1.6V4.8c0-.9.7-1.6 1.6-1.6zm7 1.5V8c0 .6.4 1 1 1h3.3zM7.2 12h9v1.5h-9zm0 3.2h9v1.5h-9zm0 3.2h5.6V20H7.2z"/>`,
+        folder: `<path d="M3 6.6c0-1 .8-1.8 1.8-1.8h4.1c.6 0 1.2.3 1.5.8l.9 1.3h7c1 0 1.8.8 1.8 1.8v8.9c0 1-.8 1.8-1.8 1.8H4.8c-1 0-1.8-.8-1.8-1.8z"/>`,
+        lock: `<path d="M12 2.4c2.8 0 5 2.2 5 5v2.2h.8c.9 0 1.6.7 1.6 1.6v9c0 .9-.7 1.6-1.6 1.6H6.2c-.9 0-1.6-.7-1.6-1.6v-9c0-.9.7-1.6 1.6-1.6H7V7.4c0-2.8 2.2-5 5-5zm0 2c-1.7 0-3 1.3-3 3v2.2h6V7.4c0-1.7-1.3-3-3-3z"/>`,
+        unlocked:
+          `<path d="M6.2 9.6h11.6c.9 0 1.6.7 1.6 1.6v9c0 .9-.7 1.6-1.6 1.6H6.2c-.9 0-1.6-.7-1.6-1.6v-9c0-.9.7-1.6 1.6-1.6z"/>` +
+          `<path d="M8.6 9.6V7.4a4.4 4.4 0 0 1 8.8 0" fill="none" stroke="currentColor" stroke-width="2"/>`,
+        scan: `<path d="M11 4.6a6.4 6.4 0 1 0 0 12.8 6.4 6.4 0 0 0 0-12.8z M15.7 15.7 L20 20" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>`,
+      };
+
       const port = document.getElementById("port");
       const toast = document.getElementById("toast");
       const cursor = document.getElementById("cursor");
@@ -475,7 +541,7 @@
           {
             at: 2400,
             run: () => {
-              devices.innerHTML = `<h4>Devices</h4><div class="row device fade" id="dev">💾 VAULT</div>`;
+              devices.innerHTML = `<h4>Devices</h4><div class="row device fade" id="dev">${svg(G.drive)} VAULT</div>`;
             },
           },
           { at: 3200, run: () => toast.classList.remove("on") },
@@ -498,7 +564,7 @@
               winSub.textContent = "VAULT";
               content.innerHTML = `
                 <div class="gate fade">
-                  <div class="badge">🔍</div>
+                  <div class="badge">${svg(G.scan)}</div>
                   <h3>Scanning drive</h3>
                   <p>Reading volume header · verifying the vault binary signature</p>
                   <div class="bar"><i id="scan"></i></div>
@@ -514,7 +580,7 @@
             run: () => {
               content.innerHTML = `
                 <div class="gate fade">
-                  <div class="badge">🔒</div>
+                  <div class="badge">${svg(G.lock)}</div>
                   <h3>This volume is encrypted</h3>
                   <p>Enter the vault password. The key is derived on this machine and never written to it.</p>
                   <div class="pw focus"><span class="dots" id="dots"></span><span>⏎</span></div>
@@ -543,7 +609,7 @@
             run: () => {
               content.innerHTML = `
                 <div class="gate fade">
-                  <div class="badge">🔓</div>
+                  <div class="badge">${svg(G.unlocked)}</div>
                   <h3>Unlocking</h3>
                   <p>Deriving key · decrypting index</p>
                   <div class="bar"><i id="dec"></i></div>
@@ -560,16 +626,19 @@
               content.innerHTML = `
                 <div class="files fade">
                   ${[
-                    ["📄", "passports.pdf"],
-                    ["🔑", "keys.age"],
-                    ["📁", "tax-2026"],
-                    ["🖼️", "scans"],
-                    ["📓", "journal.md"],
-                    ["💼", "contracts"],
-                    ["🗄️", "backups"],
-                    ["📄", "recovery.txt"],
+                    [G.doc, "#8e8e94", "passports.pdf"],
+                    [G.lock, "#32d74b", "keys.age"],
+                    [G.folder, "#4a9ee8", "tax-2026"],
+                    [G.folder, "#4a9ee8", "scans"],
+                    [G.doc, "#8e8e94", "journal.md"],
+                    [G.folder, "#4a9ee8", "contracts"],
+                    [G.drive, "#64d2ff", "backups"],
+                    [G.doc, "#8e8e94", "recovery.txt"],
                   ]
-                    .map(([ico, name]) => `<div class="file"><span class="ico">${ico}</span>${name}</div>`)
+                    .map(
+                      ([ico, tint, name]) =>
+                        `<div class="file"><span class="ico">${svg(ico, tint)}</span>${name}</div>`,
+                    )
                     .join("")}
                 </div>`;
             },
